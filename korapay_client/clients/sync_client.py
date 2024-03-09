@@ -1,7 +1,16 @@
 from dataclasses import asdict
 
+from pydantic import EmailStr, HttpUrl
+
 from korapay_client.base_clients import BaseClient
-from korapay_client.enums import Currency, PaymentChannel, Country, HTTPMethod
+from korapay_client.clients.client_method_parameter_validator import get_validator_class
+from korapay_client.enums import (
+    Currency,
+    PaymentChannel,
+    Country,
+    HTTPMethod,
+    ClientMethod,
+)
 from korapay_client.models import Authorization, Card, Response, PayoutOrder
 from korapay_client.utils import encrypt_aes256, validate_metadata
 
@@ -11,25 +20,27 @@ class KorapayClient(BaseClient):
         self,
         reference: str,
         customer_name: str,
-        customer_email: str,
+        customer_email: EmailStr,
         card: Card,
         amount: int,
         currency: Currency,
-        redirect_url: str | None = None,
+        redirect_url: HttpUrl | None = None,
         metadata: dict | None = None,
     ) -> Response:
-        payload = {
-            "reference": reference,
-            "card": asdict(card),
-            "amount": amount,
-            "currency": currency.value,
-            "customer": {"name": customer_name, "email": customer_email},
-        }
-        if redirect_url:
-            payload["redirect_url"] = redirect_url
-        if metadata:
-            validate_metadata(metadata)
-            payload["metadata"] = metadata
+        parameter_validator_class = get_validator_class(ClientMethod.CHARGE_VIA_CARD)
+        parameter_model = parameter_validator_class.model_validate(
+            {
+                "reference": reference,
+                "customer_name": customer_name,
+                "customer_email": customer_email,
+                "card": card,
+                "amount": amount,
+                "currency": currency,
+                "redirect_url": redirect_url,
+                "metadata": metadata,
+            }
+        )
+        payload = parameter_model.model_dump(exclude_none=True)
 
         charge_data = encrypt_aes256(self._encryption_key, payload)
         return self._process_request(
