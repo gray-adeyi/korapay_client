@@ -127,8 +127,8 @@ class AbstractBaseClient(ABC):
         if encryption_key:
             self._encryption_key = encryption_key
         else:
-            self._public_key = os.getenv(self.KORAPAY_ENV_ENCRYPTION_KEY_NAME, None)
-        if not self._public_key:
+            self._encryption_key = os.getenv(self.KORAPAY_ENV_ENCRYPTION_KEY_NAME, None)
+        if not self._encryption_key:
             raise MissingAPIKeyError(
                 "Client could not find any encryption key. Please provide an encryption key on instantiation of "
                 f"this client or provide it in your environmental variables as {self.KORAPAY_ENV_ENCRYPTION_KEY_NAME}"
