@@ -1,11 +1,10 @@
 import os
 import sys
 from abc import ABC, abstractmethod
-from dataclasses import dataclass
-from http import HTTPMethod
 
 import httpx
 
+from korapay_client.enums import HTTPMethod
 from korapay_client.exceptions import (
     MissingAPIKeyError,
     UnsupportedHTTPMethodError,
