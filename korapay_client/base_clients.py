@@ -11,14 +11,7 @@ from korapay_client.exceptions import (
     ClientRequestException,
 )
 from korapay_client._metadata import __version__
-
-
-@dataclass
-class Response:
-    status_code: int
-    status: bool
-    message: str
-    data: dict | list | None
+from korapay_client.models import Response
 
 
 class AbstractBaseClient(ABC):
