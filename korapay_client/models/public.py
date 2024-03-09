@@ -1,17 +1,17 @@
 from dataclasses import dataclass
 from typing import Optional, Literal
 
+from pydantic import BaseModel, EmailStr
 
-@dataclass
-class Response:
+
+class Response(BaseModel):
     status_code: int
     status: bool
     message: str
     data: dict | list | None
 
 
-@dataclass
-class Card:
+class Card(BaseModel):
     number: str
     cvv: str
     expiry_month: str
@@ -21,7 +21,7 @@ class Card:
 
 
 @dataclass
-class AVS:
+class AVS(BaseModel):
     state: str
     city: str
     country: str
@@ -29,27 +29,23 @@ class AVS:
     zip_code: str
 
 
-@dataclass
-class Authorization:
+class Authorization(BaseModel):
     pin: str | None = None
     otp: str | None = None
     avs: AVS | None = None
 
 
-@dataclass
-class BankAccount:
+class BankAccount(BaseModel):
     bank_code: str
     account_number: str
 
 
-@dataclass
-class Customer:
-    email: str
+class Customer(BaseModel):
+    email: EmailStr
     name: Optional[str] = None
 
 
-@dataclass
-class PayoutOrder:
+class PayoutOrder(BaseModel):
     reference: str
     amount: int
     bank_account: BankAccount
