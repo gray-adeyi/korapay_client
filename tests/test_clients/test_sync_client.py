@@ -6,6 +6,7 @@ from uuid import uuid4
 from korapay_client import KorapayClient, Card, Currency, Response
 from korapay_client.base_clients import AbstractBaseClient
 from tests.test_clients.base_client_testcase import AbstractBaseClientTestCase
+from httpx import codes
 
 
 class SyncClientTestCase(AbstractBaseClientTestCase, TestCase):
@@ -47,7 +48,7 @@ class SyncClientTestCase(AbstractBaseClientTestCase, TestCase):
     def test_client_can_charge_via_card(self):
         self.client: KorapayClient
         card = Card(
-            cvv="", expiry_year="30", expiry_month="09", number="4084127883172787"
+            cvv="123", expiry_year="30", expiry_month="09", number="4084127883172787"
         )
         response = self.client.charge_via_card(
             reference=str(uuid4()),
@@ -60,5 +61,6 @@ class SyncClientTestCase(AbstractBaseClientTestCase, TestCase):
             metadata={"client_id": "qwerty"},
         )
         self.assertIsInstance(response, Response)
-        # self.assertTrue(codes.is_success(response.status_code))
-        print(response)
+        self.assertTrue(codes.is_success(response.status_code))
+        self.assertTrue(response.status)
+        self.assertEqual(response.message, "Card charged successfully")
