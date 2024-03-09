@@ -18,15 +18,3 @@ class Country(str, Enum):
     NIGERIA = "NG"
     KENYA = "KE"
     GHANA = "GH"
-
-
-class HTTPMethod(str, Enum):
-    """An enum of supported HTTP verbs."""
-
-    GET = "GET"
-    POST = "POST"
-    PUT = "PUT"
-    PATCH = "PATCH"
-    DELETE = "DELETE"
-    OPTIONS = "OPTIONS"
-    HEAD = "HEAD"
