@@ -1,4 +1,5 @@
 from dataclasses import asdict
+from decimal import Decimal
 
 from pydantic import EmailStr, HttpUrl
 
@@ -12,7 +13,7 @@ from korapay_client.enums import (
     ClientMethod,
 )
 from korapay_client.models import Authorization, Card, Response, PayoutOrder
-from korapay_client.utils import encrypt_aes256, validate_metadata
+from korapay_client.utils import encrypt_aes256
 
 
 class KorapayClient(BaseClient):
@@ -54,7 +55,7 @@ class KorapayClient(BaseClient):
     ) -> Response:
         data = {
             "transaction_reference": transaction_reference,
-            "authorization": asdict(authorization),
+            "authorization": authorization.model_dump(exclude_none=True),
         }
         return self._process_request(
             endpoint="/merchant/api/v1/charges/card/authorize",
@@ -81,22 +82,25 @@ class KorapayClient(BaseClient):
         notification_url: str | None = None,
         merchant_bears_cost: bool = False,
         metadata: dict | None = None,
-        autocomplete: bool = False,
     ) -> Response:
-        data = {
-            "reference": reference,
-            "amount": amount,
-            "currency": currency.value,
-            "notification_url": notification_url,
-            "customer": {"name": customer_name, "email": customer_email},
-            "account_name": account_name,
-            "merchant_bears_cost": merchant_bears_cost,
-            "narration": narration,
-            "autocomplete": autocomplete,
-        }
-        if metadata:
-            validate_metadata(metadata)
-            data["metadata"] = metadata
+        parameter_validator_class = get_validator_class(
+            ClientMethod.CHARGE_VIA_BANK_TRANSFER
+        )
+        parameter_model = parameter_validator_class.model_validate(
+            {
+                "reference": reference,
+                "amount": amount,
+                "currency": currency,
+                "notification_url": notification_url,
+                "customer_name": customer_name,
+                "customer_email": customer_email,
+                "account_name": account_name,
+                "merchant_bears_cost": merchant_bears_cost,
+                "narration": narration,
+                "metadata": metadata,
+            }
+        )
+        data = parameter_model.model_dump(exclude_none=True)
         return self._process_request(
             endpoint="/merchant/api/v1/charges/bank-transfer",
             method=HTTPMethod.POST,
@@ -113,14 +117,21 @@ class KorapayClient(BaseClient):
         customer_email: str | None = None,
         nin: str | None = None,
     ) -> Response:
-        data = {
-            "account_name": account_name,
-            "account_reference": account_reference,
-            "permanent": True,
-            "bank_code": bank_code,
-            "customer": {"name": customer_name, "email": customer_email},
-            "kyc": {"bvn": bvn, "nin": nin},
-        }
+        parameter_validator_class = get_validator_class(
+            ClientMethod.CREATE_VIRTUAL_BANK_ACCOUNT
+        )
+        parameter_model = parameter_validator_class.model_validate(
+            {
+                "account_name": account_name,
+                "account_reference": account_reference,
+                "bank_code": bank_code,
+                "customer_name": customer_name,
+                "customer_email": customer_email,
+                "bvn": bvn,
+                "nin": nin,
+            }
+        )
+        data = parameter_model.model_dump(exclude_none=True)
         return self._process_request(
             endpoint="/merchant/api/v1/virtual-bank-account",
             method=HTTPMethod.POST,
@@ -167,20 +178,25 @@ class KorapayClient(BaseClient):
         description: str | None = None,
         metadata: dict | None = None,
     ) -> Response:
-        data = {
-            "reference": reference,
-            "amount": amount,
-            "currency": currency.value,
-            "redirect_url": redirect_url,
-            "customer": {"email": customer_email, "name": customer_name},
-            "mobile_money": {"number": mobile_money_number},
-            "notification_url": notification_url,
-            "merchant_bears_cost": merchant_bears_cost,
-            "description": description,
-        }
-        if metadata:
-            validate_metadata(metadata)
-            data["metadata"] = metadata
+        parameter_validator_class = get_validator_class(
+            ClientMethod.CHARGE_VIA_MOBILE_MONEY
+        )
+        parameter_model = parameter_validator_class.model_validate(
+            {
+                "reference": reference,
+                "amount": amount,
+                "currency": currency.value,
+                "redirect_url": redirect_url,
+                "customer_email": customer_email,
+                "customer_name": customer_name,
+                "mobile_money_number": mobile_money_number,
+                "notification_url": notification_url,
+                "merchant_bears_cost": merchant_bears_cost,
+                "description": description,
+                "metadata": metadata,
+            }
+        )
+        data = parameter_model.model_dump(exclude_none=True)
         return self._process_request(
             endpoint="/merchant/api/v1/charges/mobile-money",
             method=HTTPMethod.POST,
@@ -191,7 +207,10 @@ class KorapayClient(BaseClient):
         return self._process_request(
             endpoint="/merchant/api/v1/charges/mobile-money/authorize",
             method=HTTPMethod.POST,
-            data={"reference": reference, "token": token},
+            data={
+                "reference": reference,
+                "token": token,
+            },
         )
 
     def resend_mobile_money_otp(self, transaction_reference: str) -> Response:
@@ -218,7 +237,7 @@ class KorapayClient(BaseClient):
     def initiate_charge(
         self,
         reference: str,
-        amount: int,
+        amount: int | float | Decimal,
         currency: Currency,
         narration: str,
         notification_url: str,
@@ -228,18 +247,22 @@ class KorapayClient(BaseClient):
         default_channel: PaymentChannel | None = None,
         redirect_url: str | None = None,
     ) -> Response:
-        data = {
-            "reference": reference,
-            "amount": amount,
-            "currency": currency.value,
-            "narration": narration,
-            "notification_url": notification_url,
-            "customer": {"email": customer_email, "name": customer_name},
-            "default_channel": default_channel.value,
-            "redirect_url": redirect_url,
-        }
-        if channels:
-            data["channels"] = [channel.value for channel in channels]
+        parameter_validator_class = get_validator_class(ClientMethod.INITIATE_CHARGE)
+        parameter_model = parameter_validator_class.model_validate(
+            {
+                "reference": reference,
+                "amount": amount,
+                "currency": currency,
+                "narration": narration,
+                "notification_url": notification_url,
+                "customer_email": customer_email,
+                "customer_name": customer_name,
+                "default_channel": default_channel,
+                "redirect_url": redirect_url,
+                "channels": channels,
+            }
+        )
+        data = parameter_model.model_dump(exclude_none=True)
         return self._process_request(
             endpoint="/merchant/api/v1/charges/initialize",
             method=HTTPMethod.POST,
@@ -268,12 +291,14 @@ class KorapayClient(BaseClient):
         return self._process_request(
             endpoint=f"/merchant/api/v1/misc/banks?countryCode={country.value}",
             method=HTTPMethod.GET,
+            use_public_auth=True,
         )
 
     def get_mmo(self, country: Country) -> Response:
         return self._process_request(
             endpoint=f"/merchant/api/v1/misc/mobile-money?countryCode={country.value}",
             method=HTTPMethod.GET,
+            use_public_auth=True,
         )
 
     def payout_to_bank_account(
