@@ -3,13 +3,22 @@ from typing import Type
 from unittest import TestCase
 from uuid import uuid4
 
-from korapay_client import KorapayClient, Card, Currency, Response
+from korapay_client import (
+    KorapayClient,
+    Card,
+    Currency,
+    Response,
+    Country,
+    Authorization,
+)
 from korapay_client.base_clients import AbstractBaseClient
 from tests.test_clients.base_client_testcase import AbstractBaseClientTestCase
 from httpx import codes
 
 
 class SyncClientTestCase(AbstractBaseClientTestCase, TestCase):
+    client: KorapayClient
+
     @classmethod
     def get_client_class(cls) -> Type[AbstractBaseClient]:
         return KorapayClient
@@ -46,7 +55,6 @@ class SyncClientTestCase(AbstractBaseClientTestCase, TestCase):
         )
 
     def test_client_can_charge_via_card(self):
-        self.client: KorapayClient
         card = Card(
             cvv="123", expiry_year="30", expiry_month="09", number="4084127883172787"
         )
@@ -64,3 +72,147 @@ class SyncClientTestCase(AbstractBaseClientTestCase, TestCase):
         self.assertTrue(codes.is_success(response.status_code))
         self.assertTrue(response.status)
         self.assertEqual(response.message, "Card charged successfully")
+        print(response)
+
+    def test_client_can_authorize_card_charge(self):
+        response = self.client.authorize_card_charge(
+            transaction_reference="KPY-CA-7VbzDPezNP7O9I7",
+            authorization=Authorization.model_validate({"pin": "1234"}),
+        )
+        print(response)
+
+    def test_client_can_resend_card_otp(self):
+        response = self.client.resend_card_otp(
+            transaction_reference="KPY-CA-7VbzDPezNP7O9I7",
+        )
+        print(response)
+
+    def test_client_can_charge_via_bank_transfer(self):
+        response = self.client.charge_via_bank_transfer(
+            reference=str(uuid4()),
+            customer_email="johndoe@example.com",
+            amount=1000,
+            currency=Currency.NGN,
+            metadata={"name": "john doe"},
+        )
+        self.assertTrue(codes.is_success(response.status_code))
+        self.assertTrue(response.status)
+
+    def test_client_can_create_virtual_bank_account(self):
+        response = self.client.create_virtual_bank_account(
+            account_name="John Doe Virtual Account",
+            account_reference=str(uuid4()),
+            bank_code="000",
+            customer_name="John Doe",
+            bvn="12345453534",
+        )
+        self.assertTrue(codes.is_success(response.status_code))
+        self.assertTrue(response.status)
+
+    def test_client_can_get_virtual_bank_account(self):
+        response = self.client.get_virtual_bank_account(
+            account_reference="716b4728-7fca-43e8-916a-3a4c0f298165"
+        )
+        self.assertTrue(codes.is_success(response.status_code))
+        self.assertTrue(response.status)
+
+    def test_client_can_get_virtual_bank_account_transactions(self):
+        response = self.client.get_virtual_bank_account_transactions(
+            account_number="1110026499"
+        )
+        self.assertTrue(codes.is_success(response.status_code))
+        self.assertTrue(response.status)
+
+    def test_client_can_credit_sandbox_virtual_bank_account(self):
+        response = self.client.credit_sandbox_virtual_bank_account(
+            account_number="1110026499", amount=1000, currency=Currency.NGN
+        )
+        self.assertTrue(codes.is_success(response.status_code))
+        self.assertTrue(response.status)
+
+    def test_client_can_charge_via_mobile_money(self):
+        response = self.client.charge_via_mobile_money(
+            reference=str(uuid4()),
+            customer_email="johndoe@example.com",
+            amount=1000,
+            mobile_money_number="254711111111",
+            currency=Currency.KES,
+        )
+        self.assertTrue(codes.is_success(response.status_code))
+        self.assertTrue(response.status)
+
+    def test_client_can_authorize_mobile_money_charge(self):
+        response = self.client.authorize_mobile_money_charge(
+            reference="KPY-CA-IeO1NKLtkB4k", token="123456"
+        )
+        print(response)
+
+    def test_client_can_resend_mobile_money_otp(self):
+        response = self.client.resend_mobile_money_otp(
+            transaction_reference="KPY-CA-IeO1NKLtkB4k"
+        )
+        print(response)
+
+    def test_client_can_resend_stk(self):
+        response = self.client.resend_stk(transaction_reference="KPY-CA-IeO1NKLtkB4k")
+        self.assertTrue(codes.is_success(response.status_code))
+        self.assertTrue(response.status)
+
+    def test_client_can_authorize_stk(self):
+        response = self.client.authorize_stk(
+            reference="KPY-CA-IeO1NKLtkB4k", pin="1234"
+        )
+        print(response)
+
+    def test_client_can_initiate_charge(self):
+        response = self.client.initiate_charge(
+            reference=str(uuid4()),
+            amount=500.60,
+            currency=Currency.NGN,
+            narration="test charge",
+            notification_url="https://example.com",
+            customer_email="johndoe@example.com",
+        )
+        self.assertTrue(codes.is_success(response.status_code))
+        self.assertTrue(response.status)
+
+    def test_client_can_get_charge(self):
+        response = self.client.get_charge(
+            reference="3016305c-fb05-4ef3-ad3a-96bb4c80eb7f"
+        )
+        self.assertTrue(codes.is_success(response.status_code))
+        self.assertTrue(response.status)
+
+    def test_client_can_resolve_bank_account(self):
+        response = self.client.resolve_bank_account(
+            bank_code="033", account_number="0000000000"
+        )
+        self.assertTrue(codes.is_success(response.status_code))
+        self.assertTrue(response.status)
+
+    def test_client_can_get_balances(self):
+        response = self.client.get_balances()
+        self.assertTrue(codes.is_success(response.status_code))
+        self.assertEqual(response.message, "success")
+
+    def test_client_can_get_banks(self):
+        response = self.client.get_banks(country=Country.NIGERIA)
+        self.assertTrue(codes.is_success(response.status_code))
+        self.assertEqual(response.message, "Successful")
+
+    def test_client_can_get_mmo(self):
+        response = self.client.get_mmo(country=Country.NIGERIA)
+        self.assertTrue(codes.is_success(response.status_code))
+        self.assertEqual(response.message, "Successful")
+
+    def test_client_can_payout_to_bank_account(self): ...
+
+    def test_client_can_payout_to_mobile_money(self): ...
+
+    def test_client_can_bulk_payout_to_bank_account(self): ...
+
+    def test_client_can_get_payouts(self): ...
+
+    def test_client_can_get_bulk_transaction(self): ...
+
+    def test_client_can_verify_payout_transaction(self): ...
