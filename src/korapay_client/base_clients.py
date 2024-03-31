@@ -9,7 +9,7 @@ from korapay_client.enums import HTTPMethod
 from korapay_client.exceptions import (
     MissingAPIKeyError,
     UnsupportedHTTPMethodError,
-    ClientRequestException,
+    ClientError,
 )
 from korapay_client._metadata import __version__
 from korapay_client.models import Response
@@ -166,7 +166,7 @@ class BaseClient(AbstractBaseClient):
             raw_response = handler(**payload)
             return self._deserialize_response(raw_response)
         except httpx.RequestError as error:
-            raise ClientRequestException(
+            raise ClientError(
                 f"An error occurred while making a request to Korapay servers. Error: {error}"
             )
 
@@ -193,6 +193,6 @@ class AsyncBaseClient(AbstractBaseClient):
                 raw_response = await handler(**payload)
                 return self._deserialize_response(raw_response)
             except httpx.RequestError as error:
-                raise ClientRequestException(
+                raise ClientError(
                     f"An error occurred while making a request to Korapay servers. Error: {error}"
                 )
