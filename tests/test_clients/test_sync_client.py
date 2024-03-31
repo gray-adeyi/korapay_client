@@ -11,10 +11,10 @@ from korapay_client import (
     Authorization,
     PayoutOrder,
     ClientError,
+    Card,
+    MobileMoneyOperator,
 )
-from korapay_client.models import Card
 from korapay_client.base_clients import AbstractBaseClient
-from korapay_client.enums.public import MobileMoneyOperator
 from tests.test_clients.base_client_testcase import AbstractBaseClientTestCase
 from httpx import codes
 
