@@ -187,7 +187,10 @@ class AsyncBaseClient(AbstractBaseClient):
                     "HTTP Request method not recognized or supported"
                 )
             payload = self._serialize_request_payload(
-                endpoint=endpoint, method=method, data=data
+                endpoint=endpoint,
+                method=method,
+                data=data,
+                use_public_auth=use_public_auth,
             )
             try:
                 raw_response = await handler(**payload)
