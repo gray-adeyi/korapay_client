@@ -73,7 +73,7 @@ class KorapayClient(BaseClient):
         self,
         reference: str,
         customer_email: str,
-        amount: int,
+        amount: int | float | Decimal,
         currency: Currency,
         customer_name: str | None = None,
         account_name: str | None = None,
@@ -150,7 +150,7 @@ class KorapayClient(BaseClient):
         )
 
     def credit_sandbox_virtual_bank_account(
-        self, account_number: str, amount: int, currency: Currency
+        self, account_number: str, amount: int | float | Decimal, currency: Currency
     ) -> Response:
         data = {
             "account_number": account_number,
@@ -167,7 +167,7 @@ class KorapayClient(BaseClient):
         self,
         reference: str,
         customer_email: str,
-        amount: int,
+        amount: int | float | Decimal,
         mobile_money_number: str,
         currency: Currency,
         notification_url: str | None = None,

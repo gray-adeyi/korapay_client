@@ -73,10 +73,12 @@ class ChargeViaCardModel(SerializeAmountMixin, MetadataValidationMixin, BaseMode
         return data
 
 
-class ChargeViaBankTransferModel(MetadataValidationMixin, BaseModel):
+class ChargeViaBankTransferModel(
+    SerializeAmountMixin, MetadataValidationMixin, BaseModel
+):
     reference: str
     customer_email: str
-    amount: int
+    amount: int | float | Decimal
     currency: Currency
     customer_name: str | None = None
     account_name: str | None = None
@@ -125,10 +127,12 @@ class CreateVirtualBankAccountModel(BaseModel):
         return data
 
 
-class ChargeViaMobileMoneyModel(MetadataValidationMixin, BaseModel):
+class ChargeViaMobileMoneyModel(
+    SerializeAmountMixin, MetadataValidationMixin, BaseModel
+):
     reference: str
     customer_email: str
-    amount: int
+    amount: int | float | Decimal
     mobile_money_number: str
     currency: Currency
     notification_url: str | None = None
