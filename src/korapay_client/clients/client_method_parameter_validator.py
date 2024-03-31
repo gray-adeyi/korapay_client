@@ -9,6 +9,8 @@ from korapay_client.models.internal import (
     CreateVirtualBankAccountModel,
     ChargeViaMobileMoneyModel,
     InitiateChargeModel,
+    PayoutToBankAccountModel,
+    PayoutToMobileMoneyModel,
 )
 
 client_methods_to_model_classes: dict[ClientMethod, Type[BaseModel]] = {
@@ -17,6 +19,8 @@ client_methods_to_model_classes: dict[ClientMethod, Type[BaseModel]] = {
     ClientMethod.CREATE_VIRTUAL_BANK_ACCOUNT: CreateVirtualBankAccountModel,
     ClientMethod.CHARGE_VIA_MOBILE_MONEY: ChargeViaMobileMoneyModel,
     ClientMethod.INITIATE_CHARGE: InitiateChargeModel,
+    ClientMethod.PAYOUT_TO_BANK_ACCOUNT: PayoutToBankAccountModel,
+    ClientMethod.PAYOUT_TO_MOBILE_MONEY: PayoutToMobileMoneyModel,
 }
 
 
