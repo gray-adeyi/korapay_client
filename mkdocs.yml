@@ -1,0 +1,20 @@
+site_name: Korapay Client Documentation
+remote_name: gray-adeyi/korapay_client
+repo_url: https://github.com/gray-adeyi/korapay_client
+theme:
+  name: material
+  icon:
+    repo: fontawesome/brands/github
+
+plugins:
+  - mike:
+      alias_type: symlink
+      redirect_template: null
+      deploy_prefix: ''
+      canonical_version: latest
+      version_selector: true
+      css_dir: css
+      javascript_dir: js
+extra:
+  version:
+    provider: mike
