@@ -1,7 +1,10 @@
 from dataclasses import dataclass
+from decimal import Decimal
 from typing import Optional, Literal
 
 from pydantic import BaseModel, EmailStr
+
+from korapay_client.models.internal import SerializeAmountMixin
 
 
 class Response(BaseModel):
@@ -9,15 +12,6 @@ class Response(BaseModel):
     status: bool
     message: str
     data: dict | list | None
-
-
-class Card(BaseModel):
-    number: str
-    cvv: str
-    expiry_month: str
-    expiry_year: str
-    name: str | None = None
-    pin: str | None = None
 
 
 @dataclass
@@ -45,9 +39,9 @@ class Customer(BaseModel):
     name: Optional[str] = None
 
 
-class PayoutOrder(BaseModel):
+class PayoutOrder(SerializeAmountMixin, BaseModel):
     reference: str
-    amount: int
+    amount: int | float | Decimal
     bank_account: BankAccount
     customer: Customer
     narration: Optional[str] = None
