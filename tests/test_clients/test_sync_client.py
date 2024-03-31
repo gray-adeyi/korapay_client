@@ -5,13 +5,16 @@ from uuid import uuid4
 
 from korapay_client import (
     KorapayClient,
-    Card,
     Currency,
     Response,
     Country,
     Authorization,
+    PayoutOrder,
+    ClientError,
 )
+from korapay_client.models import Card
 from korapay_client.base_clients import AbstractBaseClient
+from korapay_client.enums.public import MobileMoneyOperator
 from tests.test_clients.base_client_testcase import AbstractBaseClientTestCase
 from httpx import codes
 
@@ -72,7 +75,6 @@ class SyncClientTestCase(AbstractBaseClientTestCase, TestCase):
         self.assertTrue(codes.is_success(response.status_code))
         self.assertTrue(response.status)
         self.assertEqual(response.message, "Card charged successfully")
-        print(response)
 
     def test_client_can_authorize_card_charge(self):
         response = self.client.authorize_card_charge(
@@ -205,14 +207,90 @@ class SyncClientTestCase(AbstractBaseClientTestCase, TestCase):
         self.assertTrue(codes.is_success(response.status_code))
         self.assertEqual(response.message, "Successful")
 
-    def test_client_can_payout_to_bank_account(self): ...
+    def test_client_can_payout_to_bank_account(self):
+        response = self.client.payout_to_bank_account(
+            reference=str(uuid4()),
+            amount=1000,
+            currency=Currency.NGN,
+            bank_code="033",
+            account_number="0000000000",
+            customer_email="johndoe@example.com",
+        )
+        self.assertTrue(codes.is_success(response.status_code))
+        self.assertTrue(response.status)
 
-    def test_client_can_payout_to_mobile_money(self): ...
+    def test_client_can_payout_to_mobile_money(self):
+        response = self.client.payout_to_mobile_money(
+            reference=str(uuid4()),
+            amount=1000,
+            currency=Currency.KES,
+            mobile_money_operator=MobileMoneyOperator.SAFARICOM_KENYA,
+            mobile_number="254711111111",
+            customer_email="johndoe@example.com",
+        )
+        self.assertTrue(codes.is_success(response.status_code))
+        self.assertTrue(response.status)
 
-    def test_client_can_bulk_payout_to_bank_account(self): ...
+    def test_client_can_bulk_payout_to_bank_account(self):
+        payout_orders = [
+            {
+                "reference": str(uuid4()),
+                "amount": 2500,
+                "bank_account": {"bank_code": "033", "account_number": "0000000000"},
+                "customer": {"email": "johndoe@example.com"},
+            },
+            {
+                "reference": str(uuid4()),
+                "amount": 2500,
+                "bank_account": {"bank_code": "035", "account_number": "0000000000"},
+                "customer": {"email": "johndoe@example.com"},
+            },
+        ]
+        with self.assertRaises(ClientError) as error:
+            self.client.bulk_payout_to_bank_account(
+                batch_reference=str(uuid4()),
+                description="Test bulk payout",
+                merchant_bears_cost=False,
+                currency=Currency.NGN,
+                payouts=[PayoutOrder.model_validate(data) for data in payout_orders],
+            )
+        self.assertEqual(
+            str(error.exception),
+            (
+                "Unable to parse server response as json"
+                " data: status_code: 200 content: b'Welcome to Kora'"
+            ),
+        )
 
-    def test_client_can_get_payouts(self): ...
+    def test_client_can_get_payouts(self):
+        with self.assertRaises(ClientError) as error:
+            self.client.get_payouts(
+                bulk_reference="b4cb385b-6a8b-4d61-94da-e11619490195"
+            )
+        self.assertEqual(
+            str(error.exception),
+            (
+                "Unable to parse server response as json"
+                " data: status_code: 200 content: b'Welcome to Kora'"
+            ),
+        )
 
-    def test_client_can_get_bulk_transaction(self): ...
+    def test_client_can_get_bulk_transaction(self):
+        with self.assertRaises(ClientError) as error:
+            self.client.get_bulk_transaction(
+                bulk_reference="b4cb385b-6a8b-4d61-94da-e11619490195"
+            )
+        self.assertEqual(
+            str(error.exception),
+            (
+                "Unable to parse server response as json"
+                " data: status_code: 200 content: b'Welcome to Kora'"
+            ),
+        )
 
-    def test_client_can_verify_payout_transaction(self): ...
+    def test_client_can_verify_payout_transaction(self):
+        response = self.client.verify_payout_transaction(
+            transaction_reference="70298986-4da3-4e73-b79a-9c9ba60bda98"
+        )
+        self.assertTrue(codes.is_success(response.status_code))
+        self.assertTrue(response.status)
