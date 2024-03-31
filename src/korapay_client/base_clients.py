@@ -1,6 +1,7 @@
 import os
 import sys
 from abc import ABC, abstractmethod
+from json import JSONDecodeError
 
 import httpx
 
@@ -85,7 +86,15 @@ class AbstractBaseClient(ABC):
 
     @staticmethod
     def _deserialize_response(raw_response: httpx.Response) -> Response:
-        response_body = raw_response.json()
+        try:
+            response_body = raw_response.json()
+        except JSONDecodeError:
+            raise ClientError(
+                (
+                    "Unable to parse server response as json data: status_code:"
+                    f" {raw_response.status_code} content: {raw_response.content}"
+                )
+            )
         return Response(
             status_code=raw_response.status_code,
             status=response_body.get("status", False),
