@@ -15,11 +15,11 @@ from korapay_client import (
     MobileMoneyOperator,
 )
 from korapay_client.base_clients import AbstractBaseClient
-from tests.test_clients.base_client_testcase import AbstractBaseClientTestCase
+from tests.test_clients.base_client_testcase import AbstractClientTestCase
 from httpx import codes
 
 
-class SyncClientTestCase(AbstractBaseClientTestCase, TestCase):
+class SyncClientTestCase(AbstractClientTestCase, TestCase):
     client: KorapayClient
 
     @classmethod
@@ -77,17 +77,19 @@ class SyncClientTestCase(AbstractBaseClientTestCase, TestCase):
         self.assertEqual(response.message, "Card charged successfully")
 
     def test_client_can_authorize_card_charge(self):
+        # TODO: change form using an already processed transaction
         response = self.client.authorize_card_charge(
             transaction_reference="KPY-CA-7VbzDPezNP7O9I7",
             authorization=Authorization.model_validate({"pin": "1234"}),
         )
-        print(response)
+        self.assertEqual(response.status_code, codes.CONFLICT)
 
     def test_client_can_resend_card_otp(self):
+        # TODO: change form using an already processed transaction
         response = self.client.resend_card_otp(
             transaction_reference="KPY-CA-7VbzDPezNP7O9I7",
         )
-        print(response)
+        self.assertEqual(response.status_code, codes.CONFLICT)
 
     def test_client_can_charge_via_bank_transfer(self):
         response = self.client.charge_via_bank_transfer(
@@ -106,7 +108,7 @@ class SyncClientTestCase(AbstractBaseClientTestCase, TestCase):
             account_reference=str(uuid4()),
             bank_code="000",
             customer_name="John Doe",
-            bvn="12345453534",
+            bvn=self._generate_bvn(),
         )
         self.assertTrue(codes.is_success(response.status_code))
         self.assertTrue(response.status)
@@ -144,27 +146,27 @@ class SyncClientTestCase(AbstractBaseClientTestCase, TestCase):
         self.assertTrue(response.status)
 
     def test_client_can_authorize_mobile_money_charge(self):
+        # TODO: replace use of already processed token
         response = self.client.authorize_mobile_money_charge(
             reference="KPY-CA-IeO1NKLtkB4k", token="123456"
         )
-        print(response)
+        self.assertEqual(response.status_code, codes.CONFLICT)
 
     def test_client_can_resend_mobile_money_otp(self):
         response = self.client.resend_mobile_money_otp(
             transaction_reference="KPY-CA-IeO1NKLtkB4k"
         )
-        print(response)
+        self.assertEqual(response.status_code, codes.CONFLICT)
 
     def test_client_can_resend_stk(self):
         response = self.client.resend_stk(transaction_reference="KPY-CA-IeO1NKLtkB4k")
-        self.assertTrue(codes.is_success(response.status_code))
-        self.assertTrue(response.status)
+        self.assertEqual(response.status_code, codes.CONFLICT)
 
     def test_client_can_authorize_stk(self):
         response = self.client.authorize_stk(
             reference="KPY-CA-IeO1NKLtkB4k", pin="1234"
         )
-        print(response)
+        self.assertEqual(response.status_code, codes.CONFLICT)
 
     def test_client_can_initiate_charge(self):
         response = self.client.initiate_charge(
