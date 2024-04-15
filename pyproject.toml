@@ -1,7 +1,7 @@
 [project]
 name = "korapay-client"
 version = "0.1.0"
-description = "Add your description here"
+description = "A developer-friendly python client SDK for Korapay"
 authors = [
     { name = "Gbenga Adeyi", email = "adeyigbenga005@gmail.com" }
 ]
