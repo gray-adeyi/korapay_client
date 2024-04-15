@@ -290,8 +290,8 @@ class SyncClientTestCase(AbstractClientTestCase, TestCase):
             ),
         )
 
-    def test_client_can_verify_payout_transaction(self):
-        response = self.client.verify_payout_transaction(
+    def test_client_can_get_payout_transaction(self):
+        response = self.client.get_payout_transaction(
             transaction_reference="70298986-4da3-4e73-b79a-9c9ba60bda98"
         )
         self.assertTrue(codes.is_success(response.status_code))
