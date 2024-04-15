@@ -24,6 +24,7 @@ dev-dependencies = [
     "python-dotenv>=1.0.1",
     "mkdocs-material>=9.5.15",
     "mike>=2.0.0",
+    "mkdocstrings[python]>=0.24.3",
 ]
 
 [tool.hatch.metadata]
