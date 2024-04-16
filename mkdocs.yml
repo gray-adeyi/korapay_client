@@ -40,6 +40,10 @@ theme:
     - navigation.instant.progress
     - navigation.tabs
     - navigation.top
+    - navigation.sections
+    - navigation.path
+    - navigation.indexes
+    - navigation.footer
     - search.suggest
     - search.highlight
     - search.share
@@ -58,12 +62,20 @@ plugins:
       javascript_dir: js
   - search
   - mkdocstrings
+  - glightbox
 extra:
   version:
     provider: mike
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/gray-adeyi/korapay_client
+
+
 
 markdown_extensions:
+  - admonition
   - attr_list
+  - md_in_html
   - pymdownx.highlight:
       anchor_linenums: true
       line_spans: __span
@@ -71,6 +83,7 @@ markdown_extensions:
   - pymdownx.inlinehilite
   - pymdownx.snippets
   - pymdownx.superfences
+  - pymdownx.details
   - pymdownx.emoji:
       emoji_index: !!python/name:material.extensions.emoji.twemoji
       emoji_generator: !!python/name:material.extensions.emoji.to_svg
@@ -80,4 +93,12 @@ nav:
   - Home: index.md
   - "Get Started": get-started.md
   - Examples: examples.md
-  - "API Reference": api-reference.md
+  - "API Reference":
+      - Clients:
+          - Introduction: api_reference/clients/index.md
+          - KorapayClient: api_reference/clients/sync_client.md
+          - AsyncKorapayClient: api_reference/clients/async_client.md
+      - Models: api_reference/models.md
+      - Enums: api_reference/enums.md
+      - Exceptions: api_reference/exceptions.md
+  - FAQs: faqs.md
