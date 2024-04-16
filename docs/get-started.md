@@ -5,12 +5,12 @@
 ## Installation
 
 ```bash
-pip install korapay_client
+pip install korapay-client
 ```
 
 ## Trying it out
 
-- Install `korapay_client` into a virtual environment as described in the installation guide.
+- Install `korapay-client` into a virtual environment as described in the installation guide.
 - Set your credentials i.e. `KORAPAY_PUBLIC_KEY`, `KORAPAY_SECRET_KEY` & `KORAPAY_ENCRYPTION_KEY`
     in your environmental variables.
 - Start a python REPL in your virtual env by running `python`

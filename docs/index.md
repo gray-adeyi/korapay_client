@@ -20,7 +20,7 @@ Source Code: [https://github.com/gray-adeyi/korapay_client](https://github.com/g
 ## Installation
 
 ```bash
-pip install korapay_client
+pip install korapay-client
 ```
 
 ## License
