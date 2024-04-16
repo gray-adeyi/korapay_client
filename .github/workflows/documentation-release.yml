@@ -29,9 +29,9 @@ jobs:
         echo RELEASE_TAG_VERSION="${RELEASE_TAG_VERSION:1}" >> "$GITHUB_ENV"
     - name: Build docs website
       run: mike deploy "${RELEASE_TAG_VERSION}" --push
-    - name: Deploy all docs to github-pages
-      uses: peaceiris/actions-gh-pages@v3
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: ./site
-        keep_files: true
+#    - name: Deploy all docs to github-pages
+#      uses: peaceiris/actions-gh-pages@v3
+#      with:
+#        github_token: ${{ secrets.GITHUB_TOKEN }}
+#        publish_dir: ./site
+#        keep_files: true
