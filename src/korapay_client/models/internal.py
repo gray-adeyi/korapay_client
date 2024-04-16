@@ -45,6 +45,25 @@ class MetadataValidationMixin:
 
 
 class Card(BaseModel):
+    """A pydantic models for representing debit cards by `korapay_client`.
+
+    Attributes:
+        number: The debit card number.
+        cvv: The card's verification value.
+        expiry_month: The card's expiry month e.g., 08
+        expiry_year: The card's expiry year e.g., 24
+        name: The card owner's name
+        pin: The card's pin
+
+    Example:
+        ```python
+        from korapay_client import Card
+
+        card = Card(
+            cvv="123", expiry_year="30", expiry_month="09", number="4084127883172787")
+        ```
+    """
+
     number: str
     cvv: str
     expiry_month: str
